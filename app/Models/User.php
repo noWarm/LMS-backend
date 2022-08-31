@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'isStudent',    
     ];
 
     /**
@@ -41,4 +42,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    
+    public function learningCourses() {
+        return $this->belongsToMany(Course::class,'user_learning_intermediate');
+    }
+    
+    public function teachingCourses() {
+        return $this->belongsToMany(Course::class,'user_teaching_intermediate');
+    }
+
+
 }

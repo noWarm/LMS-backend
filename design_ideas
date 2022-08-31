@@ -1,0 +1,37 @@
+teacher can create course
+student can learn course
+
+teacher and student role
+
+when logging in with user & password, the system needs to know,
+if that's a student or teacher
+
+
+
+2model student and teacher, inheriting user
+what about the schema ??
+
+i will group then as only users/ but with different policy for them
+
+
+
+- add course limit (checking number)
+
+
+index the student and teacher differently
+// make use of caching so that sorting / displaying becomes faster
+
+//seed to test front
+
+
+assign all the stuff about courses to /courses
+there will be no /user/courses
+if a user wants to see all the course that he has registered, he will go to /courses 
+
+in /courses will have a view that will retrieve all the users course, the market place ....
+
+
+if one material's gonna have one and just one file,
+why do we even need a file entity in the first place ??
+
+okay let's drop the file entity
