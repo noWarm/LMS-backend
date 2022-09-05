@@ -88,6 +88,7 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {   
+        // $this->authorize('create', Course::class);
         if ($request->user()->cannot('create', Course::class)) {
             // abort(403);
             return 'you are just a kid. you are not ALLOWED to make your own course !';
@@ -113,7 +114,13 @@ class CourseController extends Controller
         $user = Auth::user();
         $user->teachingCourses()->attach($course);
 
-        return $user->teachingCourses()->get(); // note that we can't return a RELATIONSHIP
+        return response()->json([
+            'message' => '',
+            'data' => $user->teachingCourses,
+        ], 200); // use this!!!!!!!!
+        //format universally!!!!
+
+        // return $user->teachingCourses()->get(); // note that we can't return a RELATIONSHIP
 
         // FRONTEND-TODO: redirect the teacher to his dashboard of courses
     }

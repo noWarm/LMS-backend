@@ -21,9 +21,19 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::prefix('auth')->group(function () {
+// gotta add it here to let front talk to back
+// header('Access-Control-Allow-Origin: http://localhost:3000');
 
-    Route::post('register', function(Request $request) {
+Route::get('/', function (Request $request) {
+    return response()->json([
+        'message' => 'sup dude',
+        'data' => 'some boobs for ya'
+    ]);
+});
+
+
+Route::prefix('auth')->group(function () {
+    Route::post('register', function (Request $request) {
 
         $validatedData = $request->validate([
             'name' => 'required',
@@ -42,7 +52,7 @@ Route::prefix('auth')->group(function () {
 
         return response()->json('registered succesfully');
         // FRONTEND-TODO: i'd want to redirect them to login page actually
-    });
+    })->name('register');
 
     // on this login route we don't need any middleware yet right ?
     Route::post('login', function (Request $request) {
@@ -57,47 +67,48 @@ Route::prefix('auth')->group(function () {
 
         $user = User::where('email', $validatedData['email'])->firstOrFail();
         // BACK-TODO: if fail, tell them the email is not registered, not wrong password
-        
+
         if (Hash::check($validatedData['password'], $user->password)) {
-            
+
             $token = $user->createToken('accessToken')->accessToken;
             return response()->json([
-                'accessToken'=>$token,
-                'isStudent'=>$user->isStudent
+                'accessToken' => $token,
+                'isStudent' => $user->isStudent
             ]);
-
         }
         return response()->json('invalid password');
         // FRONTEND-TODO: i'd actually want to redirect them back to GET / login page
     });
 
-    Route::get('login', function(Request $request) {
+    Route::get('login', function (Request $request) {
         return 'log in first !!';
     })->name('login');
-
-    
 });
-    
-   
-Route::middleware('auth:api')->group(function(){
-    
-    Route::get('/user', function (Request $request) {
 
-        $user = $request->user();
 
-        if ($user->isStudent) {
-            return response()->json([
-                'user' => $user,
-                'learning_courses' => $user->teachingCourses()->get(),
-            ]);
+Route::middleware('auth:api')->group(function () {
+    Route::prefix('user')->group(function () {
 
-        } else {
-            return response()->json([
-                'user' => $user,
-                'teaching_courses' => $user->teachingCourses()->get(),
-            ]);
-        }
-    })->name('user');
+        Route::get('/', function (Request $request) {
+            $user = $request->user();
+
+            if ($user->isStudent) {
+                return response()->json([
+                    'user' => $user,
+                    'learning_courses' => $user->teachingCourses()->get(),
+                ]);
+            } else {
+                return response()->json([
+                    'user' => $user,
+                    'teaching_courses' => $user->teachingCourses()->get(),
+                ]);
+            }
+        })->name('user');
+
+        Route::get('/profile', function (Request $request) {
+            return 'this will be the user profile';
+        })->name('profile');
+    });
 
     Route::get('/logout', function (Request $request) {
         $request->user()->token()->revoke();
@@ -107,6 +118,7 @@ Route::middleware('auth:api')->group(function(){
 
     Route::post('/courses/{course}/register', [CourseController::class, 'register']);
     Route::post('/courses/{course}/drop', [CourseController::class, 'drop']);
+
     Route::resource('/courses', CourseController::class);
     Route::resource('courses.materials', CourseMaterialController::class);
 });
